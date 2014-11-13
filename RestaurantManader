@@ -55,7 +55,7 @@ function processRestaurantManagerCommands(commands) {
                         return drinks + salads + mainCourses + desserts;
                     }
                     
-                    result = result + menu;
+                    result = result + menu();
                 } else {
                     result = result + 'No recipes...yet\r\n';
                 }
