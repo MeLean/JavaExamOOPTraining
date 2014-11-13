@@ -46,15 +46,16 @@ function processRestaurantManagerCommands(commands) {
             Restaurant.prototype.printRestaurantMenu = function() {
                 var result = '***** ' + this.getName() +' - ' + this.getLocation() + '*****\r\n';
                 if (this._recipesSet.length > 0) {
-                    var menu = (function () {
+                    var menu = function () {
                         var drinks = sortedArrayStringify.call(this, Drink);
                         var salads = sortedArrayStringify.call(this, Salad);
                         var mainCourses = sortedArrayStringify.call(this, MainCourse);
-                        var desserts = sortedArrayStringify.call(this, Dessert);
+                        var desserts = this.sortedArrayStringify.call(this, Dessert);
 
                         return drinks + salads + mainCourses + desserts;
-                    })();
-                    result = result + menu;
+                    };
+                    
+                    result = result + menu();
                 } else {
                     result = result + 'No recipes...yet\r\n';
                 }
