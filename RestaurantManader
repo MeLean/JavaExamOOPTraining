@@ -68,13 +68,13 @@ function processRestaurantManagerCommands(commands) {
                     .filter(function (element) { return element instanceof type; })
                     .sort(function (a, b) { return a.compare(b); });
                 
-                var result = '';
+                var recepieString = '';
                 if (typeArray.length > 0) {
-                    result = '~~~~~ ' + type.prototype.constructor.name.toUpperCase() + 'S ~~~~~\r\n' +
+                    recepieString = '~~~~~ ' + type.prototype.constructor.name.toUpperCase() + 'S ~~~~~\r\n' +
                     typeArray.join('\r\n');
                 }
                 
-                return result;
+                return recepieString;
             }
             
             Restaurant.prototype.addRecipe = function(recipe) {
