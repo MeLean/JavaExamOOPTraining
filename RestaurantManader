@@ -311,7 +311,7 @@ function processRestaurantManagerCommands(commands) {
                 if (typeof value === 'boolean') {
                     return value;
                 } else {
-                    throw new Error(type + '`s should be true or false!');
+                    throw new Error(type + '`s value should be true or false!');
                 }
             }
             
@@ -319,7 +319,7 @@ function processRestaurantManagerCommands(commands) {
                 if (value >= maxValue) {
                     return value;
                 } else {
-                    throw new Error(type + '`s should be less or equal than'+ maxValue +'!');
+                    throw new Error(type + '`s value should be less or equal than '+ maxValue +'!');
                 }
             }
 
