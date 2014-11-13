@@ -47,10 +47,10 @@ function processRestaurantManagerCommands(commands) {
                 var result = '***** ' + this.getName() +' - ' + this.getLocation() + '*****\r\n';
                 if (this._recipesSet.length > 0) {
                     var menu = function () {
-                        var drinks = sortedArrayStringify.call(this, Drink, this._recipesSet);
-                        var salads = sortedArrayStringify.call(this, Salad, this._recipesSet);
-                        var mainCourses = sortedArrayStringify.call(this, MainCourse, this._recipesSet);
-                        var desserts = this.sortedArrayStringify.call(this, Dessert, this._recipesSet);
+                        var drinks = sortedArrayStringify.call(this, Drink);
+                        var salads = sortedArrayStringify.call(this, Salad);
+                        var mainCourses = sortedArrayStringify.call(this, MainCourse);
+                        var desserts = this.sortedArrayStringify.call(this, Dessert);
 
                         return drinks + salads + mainCourses + desserts;
                     }
@@ -63,8 +63,8 @@ function processRestaurantManagerCommands(commands) {
                 return result;
             }
             
-            var sortedArrayStringify = function(type, array) {
-                var typeArray = array
+            var sortedArrayStringify = function(type) {
+                var typeArray = this._recipesSet
                     .filter(function (element) { return element instanceof type; })
                     .sort(function (a, b) { return a.compare(b); });
                 
