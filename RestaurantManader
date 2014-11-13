@@ -15,8 +15,7 @@ function processRestaurantManagerCommands(commands) {
             _restaurants = [];
             _recipes = [];
         }
-
-
+        
         var Restaurant = (function () {
             function Restaurant(name, location) {
                 this.setName(name);
@@ -82,6 +81,15 @@ function processRestaurantManagerCommands(commands) {
                 this._recipesSet.push(recipe);
             }
             
+            Restaurant.prototype.removeRecipe = function (recipe) {
+                var index = indexOf(recipe);
+                if (index < 0) {
+                    throw new Error("Can not remove non existind recipe:" + recipe);
+                }
+
+                _recipesSet.splice(index, 1);
+            }
+
             return Restaurant;
         })();
         
@@ -198,9 +206,14 @@ function processRestaurantManagerCommands(commands) {
             Meal.prototype.setIsVegan = function (isVegan) {
                 this._isVegan = Validator.isBolean('Meal isVegan', isVegan);
             }
+            
+            Meal.prototype.ToggleVegan = function () {
+                return this._isVegan = !this._isVegan;
+            }
 
-            Meal.prototype.toString = function() {
-                Recipe.prototype.toString.call(this, 'g');
+            Meal.prototype.toString = function () {
+                var isVeganStr = this._isVegan ? "[Vegan]" : "";
+                return isVeganStr + Recipe.prototype.toString.call(this, 'g');
             }
 
             return Meal;
@@ -210,8 +223,18 @@ function processRestaurantManagerCommands(commands) {
         var Dessert = function () {
             function Dessert(name, price, calories, quantityPerServing, timeToPrepare, isVegan) {
                 Meal.call(this, name, price, calories, quantityPerServing, timeToPrepare, isVegan);
+                this._hasSugar = true;
+            }
+
+            Dessert.prototype.toggleSugar = function() {
+                return this._hasSugar = !this._hasSugar;
             }
             
+            Dessert.prototype.toString = function() {
+                var hasSugarStr = this._hasSugar() ? "" : "[NO SUGAR] ";
+                return hasSugarStr + isVeganStr + Meal.prototype.toString.call(this);
+            }
+
             return Dessert;
         }
         
@@ -231,6 +254,7 @@ function processRestaurantManagerCommands(commands) {
             }
             
             MainCourse.prototype.toString = function () {
+              
                return Meal.prototype.toString.call(this) + "\r\n" +
                     "Type: " + this.getType() + "\r\n";
             }
@@ -242,7 +266,7 @@ function processRestaurantManagerCommands(commands) {
         var Salad = function () {
             function Salad(name, price, calories, quantityPerServing, timeToPrepare, hasPasta) {
                 Meal.call(this, name, price, calories, quantityPerServing, timeToPrepare, true);
-                Salad.prototype.setType(type);
+                Salad.prototype.setHasPasta(hasPasta);
             }
             
             Salad.prototype.getHasPasta = function () {
