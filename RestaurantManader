@@ -47,15 +47,15 @@ function processRestaurantManagerCommands(commands) {
                 var result = '***** ' + this.getName() +' - ' + this.getLocation() + '*****\r\n';
                 if (this._recipesSet.length > 0) {
                     var menu = function () {
-                        var drinks = sortedArrayStringify.call(this, Drink);
-                        var salads = sortedArrayStringify.call(this, Salad);
-                        var mainCourses = sortedArrayStringify.call(this, MainCourse);
-                        var desserts = this.sortedArrayStringify.call(this, Dessert);
+                        var drinks = sortedArrayStringify.call(this, Drink, this._recipesSet);
+                        var salads = sortedArrayStringify.call(this, Salad, this._recipesSet);
+                        var mainCourses = sortedArrayStringify.call(this, MainCourse, this._recipesSet);
+                        var desserts = this.sortedArrayStringify.call(this, Dessert, this._recipesSet);
 
                         return drinks + salads + mainCourses + desserts;
-                    };
+                    }
                     
-                    result = result + menu();
+                    result = result + menu;
                 } else {
                     result = result + 'No recipes...yet\r\n';
                 }
@@ -63,8 +63,8 @@ function processRestaurantManagerCommands(commands) {
                 return result;
             }
             
-            var sortedArrayStringify = function(type) {
-                var typeArray = (this._recipeSet)
+            var sortedArrayStringify = function(type, array) {
+                var typeArray = array
                     .filter(function (element) { return element instanceof type; })
                     .sort(function (a, b) { return a.compare(b); });
                 
@@ -85,7 +85,7 @@ function processRestaurantManagerCommands(commands) {
             Restaurant.prototype.removeRecipe = function (recipe) {
                 var index = indexOf(recipe);
                 if (index < 0) {
-                    throw new Error("Can not remove non existind recipe:" + recipe);
+                    throw new Error("Can not remove non existing recipe:" + recipe);
                 }
 
                 _recipesSet.splice(index, 1);
