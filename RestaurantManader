@@ -152,7 +152,7 @@ function processRestaurantManagerCommands(commands) {
             }
 
             Recipe.prototype.toString = function(unit) {
-                return '== ' + this.getName() + ' == $' + this.getPrice() + '\r\n' +
+                return '== ' + this.getName() + ' == $' + this.getPrice().toFixed(2) + '\r\n' +
                 'Per serving: ' + this.getTimeToPrepare() + unit + ',' + this.getCalories() + 'kcal';
             }
 
@@ -161,8 +161,12 @@ function processRestaurantManagerCommands(commands) {
         
 
         var Drink = (function() {
+            var MAX_CALORIES = 100;
+            var MAX_TIME = 20;
             function Drink(name, price, calories, quantityPerServing, timeToPrepare, isCarbonated) {
-                Recipe.call(this, name, price, calories, quantityPerServing, timeToPrepare);
+                Recipe.call(this, 
+                    name, price, Validator.isNumberGraterThan("Drink calorie", MAX_CALORIES, calories),
+                    quantityPerServing, Validator.isNumberGraterThan("Drink preparation time", MAX_TIME, timeToPrepare));
                 Drink.prototype.setIsCarbonated(isCarbonated);
             }
 
@@ -232,7 +236,7 @@ function processRestaurantManagerCommands(commands) {
             
             Dessert.prototype.toString = function() {
                 var hasSugarStr = this._hasSugar() ? "" : "[NO SUGAR] ";
-                return hasSugarStr + isVeganStr + Meal.prototype.toString.call(this);
+                return hasSugarStr + Meal.prototype.toString.call(this);
             }
 
             return Dessert;
@@ -279,7 +283,7 @@ function processRestaurantManagerCommands(commands) {
             
             Salad.prototype.toString = function () {
                 return '' + Meal.prototype.toString.call(this) + "\r\n" +
-                    "Contains pasta: " + this.getType() + "\r\n";
+                    "Contains pasta: " + this.getHasPasta() + "\r\n";
             }
             
             return Salad;
@@ -310,11 +314,20 @@ function processRestaurantManagerCommands(commands) {
                     throw new Error(type + '`s should be true or false!');
                 }
             }
+            
+            var isNumberGraterThan = function (type, value, maxValue) {
+                if (value >= maxValue) {
+                    return value;
+                } else {
+                    throw new Error(type + '`s should be less or equal than'+ maxValue +'!');
+                }
+            }
 
            return {
                 isStringNullOrEnpty: isStringNullOrEnpty,
                 isNumberPositive: isNumberPositive,
-                isBolean: isBolean
+                isBolean: isBolean,
+                isNumberGraterThan: isNumberGraterThan
            }
         })();
         
