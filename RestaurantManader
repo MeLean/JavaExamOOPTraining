@@ -1,12 +1,20 @@
 function processRestaurantManagerCommands(commands) {
     'use strict';
 
-    Object.prototype.intherits = function intherits(parent) {
-        this.prototype = Object.create(parent);
+    Object.prototype.intherits = function (parent) {
+        if (!Object.create) {
+            Object.prototype.create = function(proto) {
+                function Func() { }
+
+                Func.prototype = new proto;
+                return new Func;
+            }
+        }
+
+        this.prototype = Object.create(parent.prototype);
         this.prototype.constructor = this;
     }
     
-
     var RestaurantEngine = (function () {
         var _restaurants,
             _recipes;
@@ -23,7 +31,7 @@ function processRestaurantManagerCommands(commands) {
                 this._recipesSet = [];
             }
 
-            Restaurant.prototype.getName = function () {
+            Restaurant.prototype.getName = function() {
                 return this._name;
             }
 
@@ -31,7 +39,7 @@ function processRestaurantManagerCommands(commands) {
                 this._name = Validator.isStringNullOrEnpty('Restorant name', name);
             }
             
-            Restaurant.prototype.getLocation = function () {
+            Restaurant.prototype.getLocation = function() {
                 return this._location;
             }
             
@@ -39,20 +47,22 @@ function processRestaurantManagerCommands(commands) {
                 this._location = Validator.isStringNullOrEnpty('Restorant location', location);
             }
             
-            Restaurant.prototype.getRecipeSet = function () {
+            Restaurant.prototype.getRecipeSet = function() {
                 return this._recipesSet;
             }
 
             Restaurant.prototype.printRestaurantMenu = function() {
-                var result = '***** ' + this.getName() +' - ' + this.getLocation() + '*****\r\n';
+                var result = '***** ' + this.getName() +' - ' + this.getLocation() + ' *****\r\n';
+                var recipeArray = this.getRecipeSet();
                 if (this._recipesSet.length > 0) {
                     var menu = function () {
-                        var drinks = sortedArrayStringify.call(this, Drink);
-                        var salads = sortedArrayStringify.call(this, Salad);
-                        var mainCourses = sortedArrayStringify.call(this, MainCourse);
-                        var desserts = this.sortedArrayStringify.call(this, Dessert);
-
-                        return drinks + salads + mainCourses + desserts;
+                        var drinks = Restaurant.prototype.sortedArrayStringify(Drink, recipeArray);
+                        var salads = Restaurant.prototype.sortedArrayStringify(Salad, recipeArray);
+                        var mainCourses = Restaurant.prototype.sortedArrayStringify(MainCourse, recipeArray);
+                        var desserts = Restaurant.prototype.sortedArrayStringify(Dessert, recipeArray);
+                        var menuStr = drinks + salads + mainCourses + desserts;
+                        
+                        return menuStr;
                     }
                     
                     result = result + menu();
@@ -63,15 +73,15 @@ function processRestaurantManagerCommands(commands) {
                 return result;
             }
             
-            var sortedArrayStringify = function(type) {
-                var typeArray = this._recipesSet
+            Restaurant.prototype.sortedArrayStringify = function (type, array) {
+                var typeArray = array
                     .filter(function (element) { return element instanceof type; })
-                    .sort(function (a, b) { return a.compare(b); });
+                    .sort(function (a, b) { return a.toString().localeCompare(b.toString()); });
                 
                 var recepieString = '';
                 if (typeArray.length > 0) {
                     recepieString = '~~~~~ ' + type.prototype.constructor.name.toUpperCase() + 'S ~~~~~\r\n' +
-                    typeArray.join('\r\n');
+                    typeArray.join();
                 }
                 
                 return recepieString;
@@ -98,14 +108,14 @@ function processRestaurantManagerCommands(commands) {
         var Recipe = (function () {
             function Recipe(name, price, calories, quantityPerServing, timeToPrepare) {
                 if (this.constructor === Recipe) {
-                    throw new Error("Can't instantiate abstract class Recipe!");
+                    throw new Error("Can't instantiate abstract " + this.constructor.name + "!");
                 }
                 
-                Recipe.prototype.setName(name);
-                Recipe.prototype.setPrice(price);
-                Recipe.prototype.setCalories(calories);
-                Recipe.prototype.setQuantityPerServing(quantityPerServing);
-                Recipe.prototype.setTimeToPrepare(timeToPrepare);
+                this.setName(name);
+                this.setPrice(price);
+                this.setCalories(calories);
+                this.setQuantityPerServing(quantityPerServing);
+                this.setTimeToPrepare(timeToPrepare);
             }
 
             Recipe.prototype.getName = function () {
@@ -121,7 +131,7 @@ function processRestaurantManagerCommands(commands) {
             }
             
             Recipe.prototype.setPrice = function (price) {
-                this._price = Validator.isPrototypeOf('Recipe price', price);
+                this._price = Validator.isNumberPositive('Recipe price', price);
             }
             
             Recipe.prototype.getCalories = function () {
@@ -129,7 +139,7 @@ function processRestaurantManagerCommands(commands) {
             }
             
             Recipe.prototype.setCalories = function (calories) {
-                this._calories = Validator.isPrototypeOf('Recipe calories', calories);
+                this._calories = Validator.isNumberPositive('Recipe calories', calories);
             }
             
             Recipe.prototype.getQuantityPerServing = function () {
@@ -137,7 +147,7 @@ function processRestaurantManagerCommands(commands) {
             }
             
             Recipe.prototype.setQuantityPerServing = function (quantityPerServing) {
-                this._quantityPerServing = Validator.isPrototypeOf('Recipe quantity per serving', quantityPerServing);
+                this._quantityPerServing = Validator.isNumberPositive('Recipe quantity per serving', quantityPerServing);
             }
             
             Recipe.prototype.getTimeToPrepare = function () {
@@ -145,16 +155,16 @@ function processRestaurantManagerCommands(commands) {
             }
             
             Recipe.prototype.setTimeToPrepare = function (timeToPrepare) {
-                this._timeToPrepare = Validator.isPrototypeOf('Recipe time to pepare', timeToPrepare);
+                this._timeToPrepare = Validator.isNumberPositive('Recipe time to pepare', timeToPrepare);
             }
             
             Recipe.prototype.toggleSugar = function() {
                     
             }
 
-            Recipe.prototype.toString = function(unit) {
-                return '== ' + this.getName() + ' == $' + this.getPrice().toFixed(2) + '\r\n' +
-                'Per serving: ' + this.getTimeToPrepare() + unit + ',' + this.getCalories() + 'kcal';
+            Recipe.prototype.toString = function (unit) {
+                 return '== ' + this.getName() + ' == $' + this.getPrice().toFixed(2) + '\r\n' +
+                    'Per serving: ' + this.getTimeToPrepare() + unit + ', ' + this.getCalories() + ' kcal';
             }
 
             return Recipe;
@@ -166,8 +176,8 @@ function processRestaurantManagerCommands(commands) {
             var MAX_TIME = 20;
             function Drink(name, price, calories, quantityPerServing, timeToPrepare, isCarbonated) {
                 Recipe.call(this, 
-                    name, price, Validator.isNumberGraterThan("Drink calorie", MAX_CALORIES, calories),
-                    quantityPerServing, Validator.isNumberGraterThan("Drink preparation time", MAX_TIME, timeToPrepare));
+                    name, price, Validator.isNumberGraterThan("Drink calorie", calories, MAX_CALORIES),
+                    quantityPerServing, Validator.isNumberGraterThan("Drink preparation time", timeToPrepare, MAX_TIME));
                 Drink.prototype.setIsCarbonated(isCarbonated);
             }
 
@@ -217,91 +227,101 @@ function processRestaurantManagerCommands(commands) {
             }
 
             Meal.prototype.toString = function () {
-                var isVeganStr = this._isVegan ? "[Vegan]" : "";
+                var isVeganStr = this._isVegan ? "[Vegan] " : "";
                 return isVeganStr + Recipe.prototype.toString.call(this, 'g');
             }
 
             return Meal;
         })();
-        
 
-        var Dessert = function () {
+
+        var Dessert = (function() {
             function Dessert(name, price, calories, quantityPerServing, timeToPrepare, isVegan) {
                 Meal.call(this, name, price, calories, quantityPerServing, timeToPrepare, isVegan);
                 this._hasSugar = true;
             }
 
+            Dessert.intherits(Meal);
+
             Dessert.prototype.toggleSugar = function() {
                 return this._hasSugar = !this._hasSugar;
             }
-            
+
             Dessert.prototype.toString = function() {
-                var hasSugarStr = this._hasSugar() ? "" : "[NO SUGAR] ";
-                return hasSugarStr + Meal.prototype.toString.call(this);
+                var hasSugarStr = this._hasSugar ? "" : "[NO SUGAR] ";
+                return hasSugarStr + Meal.prototype.toString.call(this) + "\r\n";
             }
 
             return Dessert;
-        }
-        
+        })();
 
-        var MainCourse = function () {
+
+        var MainCourse = (function() {
             function MainCourse(name, price, calories, quantityPerServing, timeToPrepare, isVegan, type) {
                 Meal.call(this, name, price, calories, quantityPerServing, timeToPrepare, isVegan);
-                MainCourse.prototype.setType(type);
+                this.setType(type);
             }
             
-            MainCourse.prototype.getType = function () {
+            MainCourse.intherits(Meal);
+
+            MainCourse.prototype.getType = function() {
                 return this._type;
             }
 
-            MainCourse.prototype.setType = function (type) {
-                this._type = Validator.isStringNullOrEnpty(type);
+            MainCourse.prototype.setType = function(type) {
+                this._type = Validator.isStringNullOrEnpty("MainCourse type", type);
             }
-            
-            MainCourse.prototype.toString = function () {
-              
-               return Meal.prototype.toString.call(this) + "\r\n" +
+
+            MainCourse.prototype.toString = function() {
+                return Meal.prototype.toString.call(this) + "\r\n" +
                     "Type: " + this.getType() + "\r\n";
             }
 
             return MainCourse;
-        }
-        
+        })();
 
-        var Salad = function () {
+
+        var Salad = (function() {
             function Salad(name, price, calories, quantityPerServing, timeToPrepare, hasPasta) {
                 Meal.call(this, name, price, calories, quantityPerServing, timeToPrepare, true);
                 Salad.prototype.setHasPasta(hasPasta);
             }
             
-            Salad.prototype.getHasPasta = function () {
+            Salad.intherits(Meal);
+
+            Salad.prototype.getHasPasta = function() {
                 return this._hasPasta;
             }
-            
-            Salad.prototype.setHasPasta = function (hasPasta) {
-                this._hasPasta = Validator.isBolean(hasPasta);
+
+            Salad.prototype.setHasPasta = function(hasPasta) {
+                this._hasPasta = Validator.isBolean("Salad has pasta", hasPasta);
             }
-            
+
             Salad.prototype.toString = function () {
-                return '' + Meal.prototype.toString.call(this) + "\r\n" +
-                    "Contains pasta: " + this.getHasPasta() + "\r\n";
+                var hasPastaStr = this.getHasPasta() ? "yes" : "no";
+                return Meal.prototype.toString.call(this) + "\r\n" +
+                    "Contains pasta: " + hasPastaStr + "\r\n";
             }
-            
+
+            Salad.prototype.ToggleVegan = function() {
+                throw new Error("Can not change isVegan property. Salad is always Vegan!");
+            }
+
             return Salad;
-        }
+        })();
         
 
         var Validator = (function() {
-            var isStringNullOrEnpty = function(type, name) {
-                if (!name) {
+            var isStringNullOrEnpty = function(type, value) {
+                if (!value) {
                     throw new Error(type + '`s name can not be emprty!');
                 }
 
-                return name;
+                return value;
             }
             
             var isNumberPositive = function (type, number) {
-                if (number > 0) {
+                if (number < 0) {
                     throw new Error(type + ' should be positive!');
                 }
                 
@@ -317,7 +337,7 @@ function processRestaurantManagerCommands(commands) {
             }
             
             var isNumberGraterThan = function (type, value, maxValue) {
-                if (value >= maxValue) {
+                if (value <= maxValue) {
                     return value;
                 } else {
                     throw new Error(type + '`s value should be less or equal than '+ maxValue +'!');
@@ -331,9 +351,6 @@ function processRestaurantManagerCommands(commands) {
                 isNumberGraterThan: isNumberGraterThan
            }
         })();
-        
-        
-      
         
 
         var Command = (function () {
